@@ -41,16 +41,16 @@ public class Peer {
 	}
 	
 	public void takeAppropriateAction(String receivedMessage, int senderPort) throws IOException {
-		
-		if(receivedMessage.trim().equals("PING REQUEST")) {
+		receivedMessage = receivedMessage.trim();
+		if(receivedMessage.equals("PING REQUEST")) {
 			System.out.println("A ping request message was received from Peer "+(senderPort-50000));
 			this.updatePredecessors(senderPort-50000);
 			this.udpClient.sendMessage("PING RESPONSE", senderPort);
 		}
-		else if(receivedMessage.trim().equals("PING RESPONSE")) {
+		else if(receivedMessage.equals("PING RESPONSE")) {
 			System.out.println("A ping response message was received from Peer "+(senderPort-50000));
 		}
-		else if(receivedMessage.trim().matches("request \\d+ \\d+")) {//fileNumber and requesterPort
+		else if(receivedMessage.matches("request \\d+ \\d+")) {//fileNumber and requesterPort
 			String[] tokens = receivedMessage.split("\\s+");
 			int fileNumber = Integer.parseInt(tokens[1]);
 			int fileHash = fileNumber%256;
@@ -67,12 +67,24 @@ public class Peer {
 				this.tcpClient.sendMessage(receivedMessage, this.getFirstSucessor()+50000);
 			}
 		}
-		else if(receivedMessage.trim().matches("QUERY RESPONSE \\d+ \\d+")) { //file and peer holding the file
+		else if(receivedMessage.matches("QUERY RESPONSE \\d+ \\d+")) { //file and peer holding the file
 			String[] tokens = receivedMessage.split("\\s+");
 			int fileNumber = Integer.parseInt(tokens[2]);
 			int peer = Integer.parseInt(tokens[3]);
 			System.out.println("Received a response message from peer "+peer+", which has the file "+fileNumber+".");
 		}
+		else if(receivedMessage.matches("QUIT \\d+ \\d+ \\d+")) {
+			String[] tokens = receivedMessage.split("\\s+");
+			int leavingPeer = Integer.parseInt(tokens[1]);
+			int candSucessor1 = Integer.parseInt(tokens[2]);
+			int candSucessor2 = Integer.parseInt(tokens[3]);
+			System.out.println("Peer "+leavingPeer+" will depart from the network.");
+			this.updateSucessors(leavingPeer, candSucessor1, candSucessor2);
+		}
+	}
+	
+	public void quit() {
+		System.exit(0);
 	}
 	
 	public void updatePredecessors(int peerId) {
@@ -83,11 +95,29 @@ public class Peer {
 	public int getFirstPredecessor() {
 		return this.predecessors.peek();
 	}
+	
 	public int getFirstSucessor() {
 		return this.sucessors[0];
 	}
 	
+	public int getSecondSucessor() {
+		return this.sucessors[1];
+	}
+	
 	public int getId() {
 		return this.id;
+	}
+	
+	private void updateSucessors(int leavingPeer, int candSucessor1, int candSucessor2) {
+		if(leavingPeer == this.sucessors[0]) {//then Im the first predecessor
+			this.sucessors[0] = candSucessor1;
+			this.sucessors[1] = candSucessor2;
+		}
+		else if(leavingPeer == this.sucessors[1]) {//then Im the second predecessor
+			this.sucessors[1] = candSucessor1;
+		}
+		System.out.println("My first sucessor is now peer "+this.sucessors[0]+".");
+		System.out.println("My second sucessor is now peer "+this.sucessors[1]+".");
+			
 	}
 }

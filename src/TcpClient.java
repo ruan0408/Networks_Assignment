@@ -13,6 +13,7 @@ public class TcpClient extends Thread {
 		this.peer = peer;
 	}
 	
+	@Override
 	public void run() {
 		Scanner scan = new Scanner(System.in);
 		String userRequest;
@@ -25,11 +26,15 @@ public class TcpClient extends Thread {
 				fileNumber = Integer.parseInt(aux[1].trim());
 				userRequest = String.join(" ", aux).trim();
 				
-				System.out.println("File request message for "+fileNumber+" has been sent to my sucessor");
 				this.sendMessage(userRequest+" "+this.peer.getId(), this.peer.getFirstSucessor()+50000);
+				System.out.println("File request message for "+fileNumber+" has been sent to my sucessor");
 			}
 			else if(userRequest.trim().equals("quit")) {
-				
+				for(int predecessor : this.peer.predecessors) {
+					this.sendMessage("QUIT "+this.peer.getId()+" "+this.peer.getFirstSucessor()+" "
+							+this.peer.getSecondSucessor(), 50000+predecessor);
+				}
+				this.peer.quit();
 			}
 			
 		}
