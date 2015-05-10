@@ -1,7 +1,6 @@
-import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 
@@ -17,27 +16,18 @@ public class UdpServer extends Thread {
 	
 	@Override
 	public void run() {
-		
-		byte[] buf;
-		DatagramPacket packet;
-		
-		ByteArrayInputStream bais;
-		InputStreamReader isr;
-		BufferedReader br;
-		String messageReceived;
+		byte[] incomingData = new byte[1024];
 		
 		while(true) {
 			try {
-				buf = new byte[3000];
-				packet = new DatagramPacket(buf, buf.length);
-				this.socket.receive(packet);
+				DatagramPacket incomingPacket = new DatagramPacket(incomingData, incomingData.length);	
+				socket.receive(incomingPacket);
+				byte[] data = incomingPacket.getData();
+				ByteArrayInputStream in = new ByteArrayInputStream(data);
+				ObjectInputStream is = new ObjectInputStream(in);
+				Message message = (Message) is.readObject();
+				message.executeAction(peer);
 				
-				bais = new ByteArrayInputStream(packet.getData());
-				isr = new InputStreamReader(bais);
-				br = new BufferedReader(isr);
-				messageReceived = br.readLine();
-				
-				this.peer.takeAppropriateAction(messageReceived, packet.getPort());
 			} catch(Exception e){
 				System.out.println("shit happened in SERVER");
 				e.printStackTrace();

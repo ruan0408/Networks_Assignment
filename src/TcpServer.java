@@ -1,6 +1,5 @@
-import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 
@@ -11,18 +10,18 @@ public class TcpServer extends Thread {
 	
 	public TcpServer(Peer peer) throws IOException {
 		this.peer = peer;
-		this.serverSocket = new ServerSocket(50000+this.peer.getId());
+		this.serverSocket = new ServerSocket(Peer.toPort(peer.getId()));
 	}
 	
 	@Override
 	public void run() {
-		
 		while(true) {
 			try {
 				Socket socket = serverSocket.accept();
-				BufferedReader inputStream = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-				this.peer.takeAppropriateAction(inputStream.readLine(), 0);
-			} catch (IOException e) {
+				ObjectInputStream inStream = new ObjectInputStream(socket.getInputStream());
+				Message message = (Message) inStream.readObject();
+				message.executeAction(peer);
+			} catch (IOException | ClassNotFoundException e) {
 				e.printStackTrace();
 			}
 		}

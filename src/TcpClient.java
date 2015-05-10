@@ -1,4 +1,5 @@
 import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.io.PrintWriter;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -18,35 +19,36 @@ public class TcpClient extends Thread {
 		Scanner scan = new Scanner(System.in);
 		String userRequest;
 		String[] aux;
-		int fileNumber;
+		int file;
+		
 		while(scan.hasNextLine()) {
-			userRequest = scan.nextLine();
-			if(userRequest.trim().matches("request \\d+")){
+			userRequest = scan.nextLine().trim();
+			if(userRequest.matches("request \\d+")){
 				aux = userRequest.split("\\s+");
-				fileNumber = Integer.parseInt(aux[1].trim());
-				userRequest = String.join(" ", aux).trim();
+				file = Integer.parseInt(aux[1]);
 				
-				this.sendMessage(userRequest+" "+this.peer.getId(), this.peer.getFirstSucessor()+50000);
-				System.out.println("File request message for "+fileNumber+" has been sent to my sucessor");
+				Message request = new FileRequest(peer.getId(), peer.getFirstSucessor(), file);
+				sendMessage(request);
+				System.out.println("File request message for "+file+" has been sent to my sucessor");
 			}
-			else if(userRequest.trim().equals("quit")) {
-				for(int predecessor : this.peer.predecessors) {
-					this.sendMessage("QUIT "+this.peer.getId()+" "+this.peer.getFirstSucessor()+" "
-							+this.peer.getSecondSucessor(), 50000+predecessor);
+			else if(userRequest.equals("quit")) {
+				for(int predecessor : peer.predecessors) {
+					Message departure = new DepartureMessage(peer.getId(), predecessor, peer.getFirstSucessor(), peer.getSecondSucessor());
+					sendMessage(departure);
 				}
-				this.peer.quit();
+				peer.quit();
 			}
-			
 		}
 		scan.close();
 	}
 	
-	public void sendMessage(String message, int peerPort) {
+	public void sendMessage(Message message) {
 		try {
+			int peerPort = Peer.toPort(message.getReceiverId());
 			Socket socket = new Socket();
 			socket.connect(new InetSocketAddress(InetAddress.getLocalHost(), peerPort));
-			PrintWriter outputStream = new PrintWriter(socket.getOutputStream(), true);
-			outputStream.println(message);
+			ObjectOutputStream outputStream = new ObjectOutputStream(socket.getOutputStream());
+			outputStream.writeObject(message);
 			socket.close();
 		} catch (Exception e) {
 			System.out.println("shit at TCP CLIENT SEND MESSSAGE");

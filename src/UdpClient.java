@@ -1,4 +1,6 @@
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.ObjectOutputStream;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
@@ -20,23 +22,29 @@ public class UdpClient extends Thread {
 		final UdpClient udpClient = this;
 		Thread t = new Thread() {
 		    public void run() {
-				for(int sucessorId : udpClient.peer.sucessors)
-					try {
-						udpClient.sendMessage("PING REQUEST", 50000+sucessorId);
-					} catch (IOException e) {
-						System.out.println("shit happened on CLIENT");
-						e.printStackTrace();
-					}	
+				for(int sucessorId : udpClient.peer.sucessors) {
+						Message message = new PingRequest(peer.getId(), sucessorId);
+						udpClient.sendMessage(message);
+				}
 		    }
 		};
 		ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
 		scheduler.scheduleWithFixedDelay(t, 0, 5, TimeUnit.SECONDS);
 	}
 	
-	public void sendMessage(String message, int peerPort) throws IOException {
-		DatagramPacket packet = new DatagramPacket(message.getBytes(), message.getBytes().length);
-		packet.setAddress(InetAddress.getLocalHost());
-		packet.setPort(peerPort);
-		this.socket.send(packet);
+	public void sendMessage(Message message) {
+		int receiverId = message.getReceiverId();
+		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+		ObjectOutputStream os;
+		try {
+			os = new ObjectOutputStream(outputStream);
+			os.writeObject(message);	
+			byte[] data = outputStream.toByteArray();
+			DatagramPacket sendPacket = new DatagramPacket(data, data.length, InetAddress.getLocalHost(), Peer.toPort(receiverId));
+			socket.send(sendPacket);
+		} catch (IOException e) {
+			System.out.println("shit in UDP CLIENT int sendMessage");
+			e.printStackTrace();
+		}	
 	}
 }
