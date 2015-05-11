@@ -23,8 +23,12 @@ public class DepartureMessage extends Message {
 
 	@Override
 	public void executeAction(Peer receivingPeer) {
-		System.out.println("Peer "+this.getSenderId()+" will depart from the network.");
-		receivingPeer.updateSucessors(this.getSenderId(), this.getFirstSucessor(), this.getSecondSucessor());
+		System.out.println("Peer "+super.getSenderId()+" will depart from the network.");
+		receivingPeer.updateSucessors(super.getSenderId(), getFirstSucessor(), getSecondSucessor());
+		
+		System.out.println("My first sucessor is now peer "+
+				receivingPeer.getFirstSucessor()+".");
+		System.out.println("My second sucessor is now peer "+
+				receivingPeer.getSecondSucessor()+".");
 	}
-
 }

@@ -19,13 +19,14 @@ public class UdpClient extends Thread {
 	
 	@Override
 	public void run() {
-		final UdpClient udpClient = this;
 		Thread t = new Thread() {
 		    public void run() {
-				for(int sucessorId : udpClient.peer.sucessors) {
-						Message message = new PingRequest(peer.getId(), sucessorId);
-						udpClient.sendMessage(message);
-				}
+				Message message = new PingRequest(peer.getId(), 
+						peer.getFirstSucessor(), peer.getFirstSucessor());
+				sendMessage(message);
+				message = new PingRequest(peer.getId(), 
+						peer.getSecondSucessor(), peer.getFirstSucessor());
+				sendMessage(message);
 		    }
 		};
 		ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
@@ -40,10 +41,11 @@ public class UdpClient extends Thread {
 			os = new ObjectOutputStream(outputStream);
 			os.writeObject(message);	
 			byte[] data = outputStream.toByteArray();
-			DatagramPacket sendPacket = new DatagramPacket(data, data.length, InetAddress.getLocalHost(), Peer.toPort(receiverId));
+			DatagramPacket sendPacket = new DatagramPacket(data, data.length, 
+					InetAddress.getLocalHost(), Peer.toPort(receiverId));
+			
 			socket.send(sendPacket);
 		} catch (IOException e) {
-			System.out.println("shit in UDP CLIENT int sendMessage");
 			e.printStackTrace();
 		}	
 	}

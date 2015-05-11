@@ -31,10 +31,12 @@ public class TcpClient extends Thread {
 				System.out.println("File request message for "+file+" has been sent to my sucessor");
 			}
 			else if(userRequest.equals("quit")) {
-				for(int predecessor : peer.predecessors) {
-					Message departure = new DepartureMessage(peer.getId(), predecessor, peer.getFirstSucessor(), peer.getSecondSucessor());
-					sendMessage(departure);
-				}
+				Message departure = new DepartureMessage(peer.getId(), peer.getFirstPredecessor(), 
+						peer.getFirstSucessor(), peer.getSecondSucessor());
+				sendMessage(departure);
+				departure = new DepartureMessage(peer.getId(), peer.getSecondPredecessor(), 
+						peer.getFirstSucessor(), peer.getSecondSucessor());
+				sendMessage(departure);
 				peer.quit();
 			}
 		}
@@ -50,7 +52,6 @@ public class TcpClient extends Thread {
 			outputStream.writeObject(message);
 			socket.close();
 		} catch (Exception e) {
-			System.out.println("shit at TCP CLIENT SEND MESSSAGE");
 			e.printStackTrace();
 		}
 	}

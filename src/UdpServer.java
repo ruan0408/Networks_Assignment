@@ -29,7 +29,6 @@ public class UdpServer extends Thread {
 				message.executeAction(peer);
 				
 			} catch(Exception e){
-				System.out.println("shit happened in SERVER");
 				e.printStackTrace();
 			}
 		}
