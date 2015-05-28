@@ -14,6 +14,9 @@ public class UdpServer extends Thread {
 		this.socket = socket;
 	}
 	
+	/*
+	 * Receives UDP messages and takes appropriate action.
+	 */
 	@Override
 	public void run() {
 		byte[] incomingData = new byte[1024];

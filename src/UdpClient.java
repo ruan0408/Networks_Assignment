@@ -17,6 +17,9 @@ public class UdpClient extends Thread {
 		this.socket = socket;
 	}
 	
+	/*
+	 * Sends PingRequest messages within a 5 second interval.
+	 */
 	@Override
 	public void run() {
 		Thread t = new Thread() {
@@ -33,6 +36,9 @@ public class UdpClient extends Thread {
 		scheduler.scheduleWithFixedDelay(t, 0, 5, TimeUnit.SECONDS);
 	}
 	
+	/*
+	 * Sends a message through a UDP connection.
+	 */
 	public void sendMessage(Message message) {
 		int receiverId = message.getReceiverId();
 		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();

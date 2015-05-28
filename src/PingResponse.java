@@ -7,6 +7,9 @@ public class PingResponse extends Message {
 		super(senderId, receiverId);
 	}
 	
+	/*
+	 * The receiving peer will print this message upon receival of a PingResponse.
+	 */
 	@Override
 	public void executeAction(Peer receivingPeer) {
 		System.out.println("A ping response message was received from Peer "+this.getSenderId());

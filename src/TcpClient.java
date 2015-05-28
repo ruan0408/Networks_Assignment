@@ -13,6 +13,9 @@ public class TcpClient extends Thread {
 		this.peer = peer;
 	}
 	
+	/*
+	 * Receives requests from the terminal and sends the proper messages.
+	 */
 	@Override
 	public void run() {
 		Scanner scan = new Scanner(System.in);
@@ -42,7 +45,9 @@ public class TcpClient extends Thread {
 		}
 		scan.close();
 	}
-	
+	/*
+	 * Sends a message through a tcp connection.
+	 */
 	public void sendMessage(Message message) {
 		try {
 			int peerPort = Peer.toPort(message.getReceiverId());

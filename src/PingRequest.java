@@ -10,10 +10,12 @@ public class PingRequest extends Message {
 	}
 	
 	@Override
-	public int getFirstSucessor() {
-		return firstSucessor;
-	}
+	public int getFirstSucessor() {return firstSucessor;}
 	
+	/*
+	 * Action that should be taken by the receiving peer.
+	 * peer is the receiving peer.
+	 */
 	@Override
 	public void executeAction(Peer peer) {
 		System.out.println("A ping request message was received from Peer "+super.getSenderId());

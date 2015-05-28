@@ -10,12 +10,15 @@ public class FileRequest extends Message {
 	}
 	
 	@Override
-	public int getFile() {
-		return file;
-	}
+	public int getFile() {return file;}
 	
+	/*
+	 * peer is the receiving peer. This action will determine if the receving peer has the file or not.
+	 * If it has, it will responde with a FileResponse. If it doesn't, the message will be forwarded to
+	 * it's sucessors.
+	 */
 	@Override
-	public void executeAction(Peer peer) { // Peer that is receiving this message
+	public void executeAction(Peer peer) {
 		int hash = Peer.hash(file);
 		if(((peer.getId() < peer.getFirstPredecessor()) &&((hash <= peer.getId()) || (hash > peer.getFirstPredecessor()))) ||
 				((hash > peer.getFirstPredecessor()) && (hash <= peer.getId()))) {

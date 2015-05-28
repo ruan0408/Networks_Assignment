@@ -10,9 +10,12 @@ public class TcpServer extends Thread {
 	
 	public TcpServer(Peer peer) throws IOException {
 		this.peer = peer;
-		this.serverSocket = new ServerSocket(Peer.toPort(peer.getId()));
+		serverSocket = new ServerSocket(Peer.toPort(peer.getId()));
 	}
 	
+	/*
+	 * Receives a message and executes it's action, passing my own peer as parameter.
+	 */
 	@Override
 	public void run() {
 		while(true) {

@@ -10,10 +10,11 @@ public class FileResponse extends Message {
 	}
 
 	@Override
-	public int getFile() {
-		return file;
-	}
+	public int getFile() {return file;}
 
+	/*
+	 * The peer that originally made the file request will display this message upon receival of a FileResponse
+	 */
 	@Override
 	public void executeAction(Peer receivingPeer) {
 		System.out.println("Received a response message from peer "+getSenderId()+", which has the file "+file+".");
